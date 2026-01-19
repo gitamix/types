@@ -49,6 +49,11 @@ func TestHash_ShortString(t *testing.T) {
 			want: "123456",
 		},
 		{
+			name: "on hash equals 7 chars",
+			h:    commit.NewHash("1234567"),
+			want: "1234567",
+		},
+		{
 			name: "on hash greater than 7 chars",
 			h:    commit.NewHash("1234567890"),
 			want: "1234567",
