@@ -2,7 +2,7 @@ package commit
 
 // Hash represents a commit hash in the version control system.
 //
-// It is typically a SHA-1 hash that uniquely identifies a commit.
+// It uniquely identifies a commit, regardless of the underlying hash algorithm.
 type Hash string
 
 // NewHash creates a new Hash instance.
