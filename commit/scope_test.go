@@ -53,22 +53,22 @@ func TestScope_String(t *testing.T) {
 		want string
 	}{
 		{
-			name: "empty string on empty scope",
-			s:    commit.NewScope(""),
-			want: "",
-		},
-		{
-			name: "preserves spaces",
-			s:    commit.NewScope("   "),
-			want: "   ",
-		},
-		{
-			name: "returns scope value",
+			name: "ok",
 			s:    commit.NewScope("ui"),
 			want: "ui",
 		},
 		{
-			name: "preserves newline",
+			name: "empty",
+			s:    commit.NewScope(""),
+			want: "",
+		},
+		{
+			name: "spaces",
+			s:    commit.NewScope("   "),
+			want: "   ",
+		},
+		{
+			name: "newline",
 			s:    commit.NewScope("\n"),
 			want: "\n",
 		},
