@@ -31,7 +31,7 @@ func NewSubject(
 
 // ParseSubject parses a commit subject string into a Subject instance.
 //
-// The expected format of the input string are:
+// The expected formats of the input string are:
 //
 //	"type: description"
 //	"type(scope): description"
