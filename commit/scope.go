@@ -44,9 +44,6 @@ func ParseScope(s string) Scope {
 		return NewScope("")
 	}
 	ss = strings.SplitN(ss[1], ")", 2)
-	if len(ss) < 2 {
-		return NewScope("")
-	}
 	return NewScope(
 		strings.TrimSpace(ss[0]),
 	)
