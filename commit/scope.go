@@ -24,3 +24,30 @@ func (s Scope) Empty() bool {
 func (s Scope) String() string {
 	return string(s)
 }
+
+// ParseScope parses the scope from a commit subject string.
+//
+// The expected format has the scope enclosed in parentheses.
+//
+// For example:
+//
+//	"feat(ui): add new button" -> scope is "ui"
+func ParseScope(s string) Scope {
+	if len(s) == 0 {
+		return NewScope("")
+	}
+	ss := strings.SplitN(s, "(", 2)
+	if len(ss) < 2 {
+		return NewScope("")
+	}
+	if !strings.Contains(ss[1], ")") {
+		return NewScope("")
+	}
+	ss = strings.SplitN(ss[1], ")", 2)
+	if len(ss) < 2 {
+		return NewScope("")
+	}
+	return NewScope(
+		strings.TrimSpace(ss[0]),
+	)
+}

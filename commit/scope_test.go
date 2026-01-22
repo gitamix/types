@@ -81,3 +81,65 @@ func TestScope_String(t *testing.T) {
 		})
 	}
 }
+
+func TestParseScope(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want commit.Scope
+	}{
+		{
+			name: "fully correct commit subject",
+			args: args{
+				s: "feat(ui): add new button",
+			},
+			want: commit.NewScope("ui"),
+		},
+		{
+			name: "just a string with scopes",
+			args: args{
+				s: "(ui)",
+			},
+			want: commit.NewScope("ui"),
+		},
+		{
+			name: "just a string with scope incorrectly closed",
+			args: args{
+				s: "(ui",
+			},
+			want: commit.NewScope(""),
+		},
+		{
+			name: "just a string with scope incorrectly opened",
+			args: args{
+				s: "ui)",
+			},
+			want: commit.NewScope(""),
+		},
+		{
+			name: "just a string without scopes",
+			args: args{
+				s: "ui",
+			},
+			want: commit.NewScope(""),
+		},
+		{
+			name: "empty string",
+			args: args{
+				s: "",
+			},
+			want: commit.NewScope(""),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := commit.ParseScope(tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
