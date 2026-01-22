@@ -28,3 +28,24 @@ func NewSubject(
 		description: d,
 	}
 }
+
+// ParseSubject parses a commit subject string into a Subject instance.
+//
+// The expected format of the input string are:
+//
+//	"type: description"
+//	"type(scope): description"
+//	"description"
+//
+// Examples:
+//
+//	"feat: add new feature"
+//	"fix(ui): resolve button issue"
+//	"update documentation"
+func ParseSubject(s string) Subject {
+	return NewSubject(
+		commit.ParseType(s),
+		commit.ParseScope(s),
+		ParseDescription(s),
+	)
+}

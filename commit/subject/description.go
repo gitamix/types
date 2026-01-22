@@ -36,6 +36,6 @@ func ParseDescription(s string) Description {
 		return NewDescription(s)
 	}
 	return NewDescription(
-		strings.TrimSpace(ss[1]),
+		strings.TrimSpace(ss[len(ss)-1]),
 	)
 }
