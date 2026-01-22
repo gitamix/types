@@ -1,13 +1,11 @@
-package subject
-
-import "github.com/gitamix/types/commit"
+package commit
 
 // Subject represents the subject of a commit message.
 type Subject struct {
 	// typ is the type of the commit.
-	typ commit.Type
+	typ Type
 	// scope is the scope of the commit.
-	scope commit.Scope
+	scope Scope
 	// description is the description of the commit.
 	description Description
 }
@@ -18,8 +16,8 @@ type Subject struct {
 //   - s: scope of the commit.
 //   - d: description of the commit.
 func NewSubject(
-	t commit.Type,
-	s commit.Scope,
+	t Type,
+	s Scope,
 	d Description,
 ) Subject {
 	return Subject{
@@ -44,8 +42,8 @@ func NewSubject(
 //	"update documentation"
 func ParseSubject(s string) Subject {
 	return NewSubject(
-		commit.ParseType(s),
-		commit.ParseScope(s),
+		ParseType(s),
+		ParseScope(s),
 		ParseDescription(s),
 	)
 }

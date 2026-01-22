@@ -1,4 +1,4 @@
-package subject_test
+package commit_test
 
 import (
 	"testing"
@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gitamix/types/commit"
-	"github.com/gitamix/types/commit/subject"
 )
 
 func TestParseSubject(t *testing.T) {
@@ -17,17 +16,17 @@ func TestParseSubject(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want subject.Subject
+		want commit.Subject
 	}{
 		{
 			name: "fully correct subject",
 			args: args{
 				s: "feat(ui): add new button",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope("ui"),
-				subject.NewDescription("add new button"),
+				commit.NewDescription("add new button"),
 			),
 		},
 		{
@@ -35,10 +34,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "   feat  (ui) :    add new button  ",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope("ui"),
-				subject.NewDescription("add new button"),
+				commit.NewDescription("add new button"),
 			),
 		},
 		{
@@ -46,10 +45,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "feat: add new button",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope(""),
-				subject.NewDescription("add new button"),
+				commit.NewDescription("add new button"),
 			),
 		},
 		{
@@ -57,10 +56,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "add new button",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType(""),
 				commit.NewScope(""),
-				subject.NewDescription("add new button"),
+				commit.NewDescription("add new button"),
 			),
 		},
 		{
@@ -68,10 +67,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "feat: ",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope(""),
-				subject.NewDescription(""),
+				commit.NewDescription(""),
 			),
 		},
 		{
@@ -79,10 +78,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "(ui): ",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType(""),
 				commit.NewScope("ui"),
-				subject.NewDescription(""),
+				commit.NewDescription(""),
 			),
 		},
 		{
@@ -90,10 +89,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "feat(ui): ",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope("ui"),
-				subject.NewDescription(""),
+				commit.NewDescription(""),
 			),
 		},
 		{
@@ -101,10 +100,10 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "feat: ui: add new button",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType("feat"),
 				commit.NewScope(""),
-				subject.NewDescription("ui: add new button"),
+				commit.NewDescription("ui: add new button"),
 			),
 		},
 		{
@@ -112,17 +111,17 @@ func TestParseSubject(t *testing.T) {
 			args: args{
 				s: "",
 			},
-			want: subject.NewSubject(
+			want: commit.NewSubject(
 				commit.NewType(""),
 				commit.NewScope(""),
-				subject.NewDescription(""),
+				commit.NewDescription(""),
 			),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := subject.ParseSubject(tt.args.s)
+			got := commit.ParseSubject(tt.args.s)
 			assert.Equal(t, tt.want, got)
 		})
 	}

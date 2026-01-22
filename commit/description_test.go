@@ -1,38 +1,37 @@
-package subject_test
+package commit_test
 
 import (
 	"testing"
 
+	"github.com/gitamix/types/commit"
 	"github.com/stretchr/testify/assert"
-
-	"github.com/gitamix/types/commit/subject"
 )
 
 func TestDescription_Empty(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		d    subject.Description
+		d    commit.Description
 		want bool
 	}{
 		{
 			name: "empty",
-			d:    subject.NewDescription(""),
+			d:    commit.NewDescription(""),
 			want: true,
 		},
 		{
 			name: "spaces",
-			d:    subject.NewDescription("   "),
+			d:    commit.NewDescription("   "),
 			want: true,
 		},
 		{
 			name: "feat",
-			d:    subject.NewDescription("feat"),
+			d:    commit.NewDescription("feat"),
 			want: false,
 		},
 		{
 			name: "new line",
-			d:    subject.NewDescription("\n"),
+			d:    commit.NewDescription("\n"),
 			want: true,
 		},
 	}
@@ -53,27 +52,27 @@ func TestDescription_String(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		d    subject.Description
+		d    commit.Description
 		want string
 	}{
 		{
 			name: "empty",
-			d:    subject.NewDescription(""),
+			d:    commit.NewDescription(""),
 			want: "",
 		},
 		{
 			name: "spaces",
-			d:    subject.NewDescription("   "),
+			d:    commit.NewDescription("   "),
 			want: "   ",
 		},
 		{
 			name: "feat",
-			d:    subject.NewDescription("feat"),
+			d:    commit.NewDescription("feat"),
 			want: "feat",
 		},
 		{
 			name: "new line",
-			d:    subject.NewDescription("\n"),
+			d:    commit.NewDescription("\n"),
 			want: "\n",
 		},
 	}
@@ -94,34 +93,34 @@ func TestParseDescription(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want subject.Description
+		want commit.Description
 	}{
 		{
 			name: "fully correct subject",
 			args: args{
 				s: "feat(ui): add new button",
 			},
-			want: subject.NewDescription("add new button"),
+			want: commit.NewDescription("add new button"),
 		},
 		{
 			name: "description only",
 			args: args{
 				s: "add new button",
 			},
-			want: subject.NewDescription("add new button"),
+			want: commit.NewDescription("add new button"),
 		},
 		{
 			name: "empty string",
 			args: args{
 				s: "",
 			},
-			want: subject.NewDescription(""),
+			want: commit.NewDescription(""),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := subject.ParseDescription(tt.args.s)
+			got := commit.ParseDescription(tt.args.s)
 			assert.Equal(t, tt.want, got)
 		})
 	}
