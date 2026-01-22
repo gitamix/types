@@ -1,4 +1,4 @@
-package subject
+package commit
 
 import "strings"
 
