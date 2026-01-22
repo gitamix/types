@@ -85,3 +85,44 @@ func TestDescription_String(t *testing.T) {
 		})
 	}
 }
+
+func TestParseDescription(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want subject.Description
+	}{
+		{
+			name: "fully correct subject",
+			args: args{
+				s: "feat(ui): add new button",
+			},
+			want: subject.NewDescription("add new button"),
+		},
+		{
+			name: "description only",
+			args: args{
+				s: "add new button",
+			},
+			want: subject.NewDescription("add new button"),
+		},
+		{
+			name: "empty string",
+			args: args{
+				s: "",
+			},
+			want: subject.NewDescription(""),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := subject.ParseDescription(tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
