@@ -47,3 +47,33 @@ func ParseSubject(s string) Subject {
 		ParseDescription(s),
 	)
 }
+
+// String returns the string representation of the Subject.
+//
+// The format is:
+//
+//	"type(scope): description"
+//	"type: description"
+//	"description"
+//
+// depending on the presence of type and scope.
+//
+// Examples:
+//
+//	"feat(ui): add new feature"
+//	"fix: resolve button issue"
+//	"update documentation"
+//
+// Note: If both type and scope are empty, only the description is returned.
+func (s Subject) String() string {
+	if s.scope.Empty() {
+		if s.typ.Empty() {
+			return s.description.String()
+		}
+		return s.typ.String() + ": " + s.description.String()
+	}
+	if s.typ.Empty() {
+		return s.description.String()
+	}
+	return s.typ.String() + "(" + s.scope.String() + "): " + s.description.String()
+}
