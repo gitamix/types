@@ -1,88 +1,92 @@
-package commit_test
+package subject_test
 
 import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
-	"github.com/gitamix/types/commit"
+	"github.com/gitamix/types/commit/subject"
 )
 
-func TestType_Empty(t *testing.T) {
+func TestDescription_Empty(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		tr   commit.Type
+		d    subject.Description
 		want bool
 	}{
 		{
 			name: "empty",
-			tr:   commit.NewType(""),
+			d:    subject.NewDescription(""),
 			want: true,
 		},
 		{
 			name: "spaces",
-			tr:   commit.NewType("   "),
+			d:    subject.NewDescription("   "),
 			want: true,
 		},
 		{
 			name: "feat",
-			tr:   commit.NewType("feat"),
+			d:    subject.NewDescription("feat"),
 			want: false,
 		},
 		{
 			name: "new line",
-			tr:   commit.NewType("\n"),
+			d:    subject.NewDescription("\n"),
 			want: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := tt.tr.Empty()
-			assert.Equal(t, tt.want, got)
+			got := tt.d.Empty()
+			if tt.want {
+				assert.True(t, got)
+			} else {
+				assert.False(t, got)
+			}
 		})
 	}
 }
 
-func TestType_String(t *testing.T) {
+func TestDescription_String(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name string
-		tr   commit.Type
+		d    subject.Description
 		want string
 	}{
 		{
 			name: "empty",
-			tr:   commit.NewType(""),
+			d:    subject.NewDescription(""),
 			want: "",
 		},
 		{
 			name: "spaces",
-			tr:   commit.NewType("   "),
+			d:    subject.NewDescription("   "),
 			want: "   ",
 		},
 		{
 			name: "feat",
-			tr:   commit.NewType("feat"),
+			d:    subject.NewDescription("feat"),
 			want: "feat",
 		},
 		{
 			name: "new line",
-			tr:   commit.NewType("\n"),
+			d:    subject.NewDescription("\n"),
 			want: "\n",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := tt.tr.String()
+			got := tt.d.String()
 			assert.Equal(t, tt.want, got)
 		})
 	}
 }
 
-func TestParseType(t *testing.T) {
+func TestParseDescription(t *testing.T) {
 	t.Parallel()
 	type args struct {
 		s string
@@ -90,48 +94,34 @@ func TestParseType(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want commit.Type
+		want subject.Description
 	}{
 		{
-			name: "fully correct commit subject",
+			name: "fully correct subject",
 			args: args{
 				s: "feat(ui): add new button",
 			},
-			want: commit.NewType("feat"),
+			want: subject.NewDescription("add new button"),
 		},
 		{
-			name: "just a string with colon",
+			name: "description only",
 			args: args{
-				s: "feat:",
+				s: "add new button",
 			},
-			want: commit.NewType("feat"),
-		},
-		{
-			name: "just a string with scope",
-			args: args{
-				s: "feat(",
-			},
-			want: commit.NewType("feat"),
-		},
-		{
-			name: "just a string",
-			args: args{
-				s: "feat",
-			},
-			want: commit.NewType(""),
+			want: subject.NewDescription("add new button"),
 		},
 		{
 			name: "empty string",
 			args: args{
 				s: "",
 			},
-			want: commit.NewType(""),
+			want: subject.NewDescription(""),
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := commit.ParseType(tt.args.s)
+			got := subject.ParseDescription(tt.args.s)
 			assert.Equal(t, tt.want, got)
 		})
 	}
