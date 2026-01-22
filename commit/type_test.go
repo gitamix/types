@@ -81,3 +81,58 @@ func TestType_String(t *testing.T) {
 		})
 	}
 }
+
+func TestParseType(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want commit.Type
+	}{
+		{
+			name: "fully correct commit subject",
+			args: args{
+				s: "feat(ui): add new button",
+			},
+			want: commit.NewType("feat"),
+		},
+		{
+			name: "just a string with colon",
+			args: args{
+				s: "feat:",
+			},
+			want: commit.NewType("feat"),
+		},
+		{
+			name: "just a string with scope",
+			args: args{
+				s: "feat(",
+			},
+			want: commit.NewType("feat"),
+		},
+		{
+			name: "just a string",
+			args: args{
+				s: "feat",
+			},
+			want: commit.NewType(""),
+		},
+		{
+			name: "empty string",
+			args: args{
+				s: "",
+			},
+			want: commit.NewType(""),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := commit.ParseType(tt.args.s)
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
