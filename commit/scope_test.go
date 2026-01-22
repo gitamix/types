@@ -100,7 +100,7 @@ func TestParseScope(t *testing.T) {
 			want: commit.NewScope("ui"),
 		},
 		{
-			name: "just a string with scopes",
+			name: "just a string with brackets",
 			args: args{
 				s: "(ui)",
 			},
@@ -121,7 +121,7 @@ func TestParseScope(t *testing.T) {
 			want: commit.NewScope(""),
 		},
 		{
-			name: "just a string without scopes",
+			name: "just a string without brackets",
 			args: args{
 				s: "ui",
 			},
