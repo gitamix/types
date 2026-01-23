@@ -18,6 +18,7 @@ linters:
     - unparam
     - gocyclo
     - goimports
+    - paralleltest
   disable:
     - typecheck
 
