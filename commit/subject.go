@@ -55,8 +55,6 @@ func ParseSubject[T string | []byte](v T) Subject {
 		if s == "" {
 			s = string(val)
 		}
-	default:
-		panic("unsupported type to parse subject")
 	}
 	return NewSubject(
 		ParseType(s),
