@@ -40,7 +40,24 @@ func NewSubject(
 //	"feat: add new feature"
 //	"fix(ui): resolve button issue"
 //	"update documentation"
-func ParseSubject(s string) Subject {
+func ParseSubject[T string | []byte](v T) Subject {
+	var s string
+	switch val := any(v).(type) {
+	case string:
+		s = val
+	case []byte:
+		for i, b := range val {
+			if b == '\n' {
+				s = string(val[:i])
+				break
+			}
+		}
+		if s == "" {
+			s = string(val)
+		}
+	default:
+		panic("unsupported type to parse subject")
+	}
 	return NewSubject(
 		ParseType(s),
 		ParseScope(s),

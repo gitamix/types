@@ -10,121 +10,186 @@ import (
 
 func TestParseSubject(t *testing.T) {
 	t.Parallel()
-	type args struct {
-		s string
-	}
-	tests := []struct {
-		name string
-		args args
-		want commit.Subject
-	}{
-		{
-			name: "fully correct subject",
-			args: args{
-				s: "feat(ui): add new button",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope("ui"),
-				commit.NewDescription("add new button"),
-			),
-		},
-		{
-			name: "correct subject with spaces",
-			args: args{
-				s: "   feat  (ui) :    add new button  ",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope("ui"),
-				commit.NewDescription("add new button"),
-			),
-		},
-		{
-			name: "subject with type and description only",
-			args: args{
-				s: "feat: add new button",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope(""),
-				commit.NewDescription("add new button"),
-			),
-		},
-		{
-			name: "description only",
-			args: args{
-				s: "add new button",
-			},
-			want: commit.NewSubject(
-				commit.NewType(""),
-				commit.NewScope(""),
-				commit.NewDescription("add new button"),
-			),
-		},
-		{
-			name: "wrong subject with type only",
-			args: args{
-				s: "feat: ",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope(""),
-				commit.NewDescription(""),
-			),
-		},
-		{
-			name: "wrong subject with scope only",
-			args: args{
-				s: "(ui): ",
-			},
-			want: commit.NewSubject(
-				commit.NewType(""),
-				commit.NewScope("ui"),
-				commit.NewDescription(""),
-			),
-		},
-		{
-			name: "wrong subject with feat and scope only",
-			args: args{
-				s: "feat(ui): ",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope("ui"),
-				commit.NewDescription(""),
-			),
-		},
-		{
-			name: "wrong subject with invalid scope format",
-			args: args{
-				s: "feat: ui: add new button",
-			},
-			want: commit.NewSubject(
-				commit.NewType("feat"),
-				commit.NewScope(""),
-				commit.NewDescription("ui: add new button"),
-			),
-		},
-		{
-			name: "empty subject",
-			args: args{
-				s: "",
-			},
-			want: commit.NewSubject(
-				commit.NewType(""),
-				commit.NewScope(""),
-				commit.NewDescription(""),
-			),
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-			got := commit.ParseSubject(tt.args.s)
-			assert.Equal(t, tt.want, got)
-		})
-	}
+	t.Run("fully correct subject from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat(ui): add new button")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("fully correct subject from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("feat(ui): add new button"))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("correct subject with spaces from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("   feat  (ui) :    add new button  ")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("correct subject with spaces from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("   feat  (ui) :    add new button  "))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("subject with type and description only from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat: add new button")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("subject with type and description only from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("feat: add new button"))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("description only from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("add new button")
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope(""),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("description only from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("add new button"))
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope(""),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with type only from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat: ")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with type only from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("feat: "))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with scope only from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("(ui): ")
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope("ui"),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with scope only from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("(ui): "))
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope("ui"),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with feat and scope only from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat(ui): ")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with feat and scope only from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("feat(ui): "))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with invalid scope format from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat: ui: add new button")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription("ui: add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("wrong subject with invalid scope format from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte("feat: ui: add new button"))
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope(""),
+			commit.NewDescription("ui: add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("empty subject from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("")
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope(""),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("empty subject from bytes", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject([]byte(""))
+		want := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope(""),
+			commit.NewDescription(""),
+		)
+		assert.Equal(t, want, got)
+	})
 }
 
 func TestSubject_String(t *testing.T) {
