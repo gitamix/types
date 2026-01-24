@@ -1,5 +1,10 @@
 package commit
 
+import (
+	"bytes"
+	"strings"
+)
+
 // Subject represents the subject of a commit message.
 type Subject struct {
 	// typ is the type of the commit.
@@ -40,7 +45,22 @@ func NewSubject(
 //	"feat: add new feature"
 //	"fix(ui): resolve button issue"
 //	"update documentation"
-func ParseSubject(s string) Subject {
+func ParseSubject[T string | []byte](v T) Subject {
+	var s string
+	switch val := any(v).(type) {
+	case string:
+		if i := strings.IndexRune(val, '\n'); i != -1 {
+			s = val[:i]
+		} else {
+			s = val
+		}
+	case []byte:
+		if i := bytes.IndexByte(val, '\n'); i != -1 {
+			s = string(val[:i])
+		} else {
+			s = string(val)
+		}
+	}
 	return NewSubject(
 		ParseType(s),
 		ParseScope(s),
