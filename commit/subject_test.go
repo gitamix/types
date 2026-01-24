@@ -30,6 +30,19 @@ func TestParseSubject(t *testing.T) {
 		)
 		assert.Equal(t, want, got)
 	})
+	t.Run("fully correct message from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject(
+			"feat(ui): add new button\n\n" +
+				"This commit adds a new button to the UI.",
+		)
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
 	t.Run("fully correct message from bytes", func(t *testing.T) {
 		t.Parallel()
 		got := commit.ParseSubject([]byte(
@@ -40,6 +53,16 @@ func TestParseSubject(t *testing.T) {
 			commit.NewType("feat"),
 			commit.NewScope("ui"),
 			commit.NewDescription("add new button"),
+		)
+		assert.Equal(t, want, got)
+	})
+	t.Run("message with inline body from string", func(t *testing.T) {
+		t.Parallel()
+		got := commit.ParseSubject("feat(ui): add new button. This commit adds a new button to the UI.")
+		want := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button. This commit adds a new button to the UI."),
 		)
 		assert.Equal(t, want, got)
 	})
