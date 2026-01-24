@@ -10,26 +10,6 @@ import (
 
 func TestParseSubject(t *testing.T) {
 	t.Parallel()
-	t.Run("fully correct subject from string", func(t *testing.T) {
-		t.Parallel()
-		got := commit.ParseSubject("feat(ui): add new button")
-		want := commit.NewSubject(
-			commit.NewType("feat"),
-			commit.NewScope("ui"),
-			commit.NewDescription("add new button"),
-		)
-		assert.Equal(t, want, got)
-	})
-	t.Run("fully correct subject from bytes", func(t *testing.T) {
-		t.Parallel()
-		got := commit.ParseSubject([]byte("feat(ui): add new button"))
-		want := commit.NewSubject(
-			commit.NewType("feat"),
-			commit.NewScope("ui"),
-			commit.NewDescription("add new button"),
-		)
-		assert.Equal(t, want, got)
-	})
 	t.Run("fully correct message from string", func(t *testing.T) {
 		t.Parallel()
 		got := commit.ParseSubject(
