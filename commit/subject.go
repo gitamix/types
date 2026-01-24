@@ -51,15 +51,13 @@ func ParseSubject[T string | []byte](v T) Subject {
 	case string:
 		if i := strings.IndexRune(val, '\n'); i != -1 {
 			s = val[:i]
-		}
-		if s == "" {
+		} else {
 			s = val
 		}
 	case []byte:
 		if i := bytes.IndexByte(val, '\n'); i != -1 {
 			s = string(val[:i])
-		}
-		if s == "" {
+		} else {
 			s = string(val)
 		}
 	}
