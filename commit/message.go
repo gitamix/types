@@ -37,12 +37,12 @@ func ParseMessage[T []byte | string](v T) Message {
 	case []byte:
 		bb = val
 	}
-	subji = max(0, bytes.IndexByte(bb, '\n'))
-	if subji > 0 {
+	subji = bytes.IndexByte(bb, '\n')
+	if subji == -1 {
+		subjbb = bb
+	} else {
 		subjbb = bb[:subji]
 		bodyi = subji + 1
-	} else if subji == 0 {
-		subjbb = bb
 	}
 	if bodyi > 0 {
 		lni := bytes.IndexByte(bb[bodyi:], '\n')
