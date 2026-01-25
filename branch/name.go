@@ -1,5 +1,7 @@
 package branch
 
+import "strings"
+
 // Name represents the name of a git branch.
 type Name string
 
@@ -10,7 +12,7 @@ func NewName(name string) Name {
 
 // Empty checks if the branch name is empty.
 func (n Name) Empty() bool {
-	return n == ""
+	return strings.TrimSpace(string(n)) == ""
 }
 
 // String returns the string representation of the branch name.
