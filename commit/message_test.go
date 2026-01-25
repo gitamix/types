@@ -398,6 +398,24 @@ func TestParseMessage(t *testing.T) {
 			),
 		},
 		{
+			name: "fully correct message with extra new lines",
+			args: args{
+				bb: []byte(
+					"feat(ui): add new button\n\n" +
+						"This commit adds a new button to the UI.\n\n" +
+						"Thank you!",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte("This commit adds a new button to the UI.\n\nThank you!")),
+			),
+		},
+		{
 			name: "message with inline body",
 			args: args{
 				bb: []byte("feat(ui): add new button. This commit adds a new button to the UI."),
@@ -465,6 +483,29 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "description with body and extra new lines",
+			args: args{
+				bb: []byte(
+					"add new button" + "\n\n" +
+						"This commit adds a new button to the UI.\n" +
+						"Fixes #123\n\n" +
+						"Please review.",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte(
+					"This commit adds a new button to the UI.\n"+
+						"Fixes #123\n\n"+
+						"Please review.",
+				)),
 			),
 		},
 		{
