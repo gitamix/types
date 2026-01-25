@@ -369,3 +369,238 @@ func TestMessage_Body(t *testing.T) {
 		})
 	}
 }
+
+func TestParseMessage(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		bb []byte
+	}
+	tests := []struct {
+		name string
+		args args
+		want commit.Message
+	}{
+		{
+			name: "fully correct message",
+			args: args{
+				bb: []byte(
+					"feat(ui): add new button\n\n" +
+						"This commit adds a new button to the UI.",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte("This commit adds a new button to the UI.")),
+			),
+		},
+		{
+			name: "fully correct message with extra new lines",
+			args: args{
+				bb: []byte(
+					"feat(ui): add new button\n\n" +
+						"This commit adds a new button to the UI.\n\n" +
+						"Thank you!",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte("This commit adds a new button to the UI.\n\nThank you!")),
+			),
+		},
+		{
+			name: "message with inline body",
+			args: args{
+				bb: []byte("feat(ui): add new button. This commit adds a new button to the UI."),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button. This commit adds a new button to the UI."),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "correct subject with spaces",
+			args: args{
+				bb: []byte("   feat  (ui) :    add new button  "),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "subject with type and description only",
+			args: args{
+				bb: []byte("feat: add new button"),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope(""),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "subject with scope and description only",
+			args: args{
+				bb: []byte("(ui): add new button"),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "description only",
+			args: args{
+				bb: []byte("add new button"),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "description with body and extra new lines",
+			args: args{
+				bb: []byte(
+					"add new button" + "\n\n" +
+						"This commit adds a new button to the UI.\n" +
+						"Fixes #123\n\n" +
+						"Please review.",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte(
+					"This commit adds a new button to the UI.\n"+
+						"Fixes #123\n\n"+
+						"Please review.",
+				)),
+			),
+		},
+		{
+			name: "wrong subject with type only",
+			args: args{
+				bb: []byte("feat: "),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "wrong subject with scope only",
+			args: args{
+				bb: []byte("(ui): "),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope("ui"),
+					commit.NewDescription(""),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "wrong subject with feat and scope only",
+			args: args{
+				bb: []byte("feat(ui): "),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription(""),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "wrong subject with invalid scope format",
+			args: args{
+				bb: []byte("feat: ui: add new button"),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope(""),
+					commit.NewDescription("ui: add new button"),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "empty message",
+			args: args{
+				bb: []byte(""),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				),
+				commit.NewBody(nil),
+			),
+		},
+		{
+			name: "default args",
+			args: args{},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				),
+				commit.NewBody(nil),
+			),
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name+" from bytes", func(t *testing.T) {
+			t.Parallel()
+			got := commit.ParseMessage(tt.args.bb)
+			assert.Equal(t, tt.want, got)
+		})
+		t.Run(tt.name+" from string", func(t *testing.T) {
+			t.Parallel()
+			got := commit.ParseMessage(string(tt.args.bb))
+			assert.Equal(t, tt.want, got)
+		})
+	}
+}
