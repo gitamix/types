@@ -27,7 +27,9 @@ func NewMessage(
 // ParseMessage parses a commit message from a byte slice or string.
 //
 // It splits the input into subject and body at the first newline character.
-// If there is no newline, the entire input is treated as the subject, and the body is empty.
+// If there is a second newline immediately following the first (i.e., "subject\n\nbody"),
+// that blank line is skipped so the body starts after it. If there is no newline, the entire
+// input is treated as the subject, and the body is empty.
 func ParseMessage[T []byte | string](v T) Message {
 	var bb, subjbb, bodybb []byte
 	var subji, bodyi int
