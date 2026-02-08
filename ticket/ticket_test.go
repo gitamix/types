@@ -160,9 +160,9 @@ func TestTicket_Empty(t *testing.T) {
 		{
 			name: "name with spaces only",
 			fields: fields{
-				name: ticket.NewName(""),
+				name: ticket.NewName(" "),
 			},
-			want: true,
+			want: false,
 		},
 		{
 			name: "empty tickets",
