@@ -63,6 +63,7 @@ func TestParseTicket(t *testing.T) {
 			want: ticket.NewTicket(
 				ticket.NewName("42"),
 			),
+			wantPanic: false,
 		},
 		{
 			name: "branch name with task id",
@@ -73,6 +74,16 @@ func TestParseTicket(t *testing.T) {
 			want: ticket.NewTicket(
 				ticket.NewName("TASK-1234"),
 			),
+			wantPanic: false,
+		},
+		{
+			name: "not found",
+			args: args{
+				s:  "No ticket here",
+				re: regexp.MustCompile(`((?:TASK|PROJ|BUG)-\d+)`),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
 		},
 		{
 			name: "empty string",
@@ -80,7 +91,8 @@ func TestParseTicket(t *testing.T) {
 				s:  "",
 				re: regexp.MustCompile(`((?:TASK|PROJ|BUG)-\d+)`),
 			},
-			want: ticket.Ticket{},
+			want:      ticket.Ticket{},
+			wantPanic: false,
 		},
 		{
 			name: "nil regex",

@@ -9,9 +9,9 @@ import "regexp"
 //
 // Example usage:
 //
-//	re := regexp.MustCompile(`JIRA-(\d+)`)
-//	t := ParseTicket("Fix issue JIRA-1234", re)
-//	fmt.Println(t.Name()) // Output: JIRA-1234
+//	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
+//	t := ParseTicket("TASK-1234 add new feature", re)
+//	fmt.Println(t.Name()) // Output: TASK-1234
 func ParseTicket(s string, re *regexp.Regexp) Ticket {
 	if len(s) == 0 {
 		return Ticket{}
