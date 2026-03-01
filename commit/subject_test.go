@@ -1,11 +1,13 @@
 package commit_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gitamix/types/commit"
+	"github.com/gitamix/types/ticket"
 )
 
 func TestParseSubject(t *testing.T) {
@@ -389,6 +391,147 @@ func TestSubject_String(t *testing.T) {
 			)
 			got := s.String()
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestSubject_Ticket(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		re *regexp.Regexp
+	}
+	tests := []struct {
+		name      string
+		s         commit.Subject
+		args      args
+		want      ticket.Ticket
+		wantPanic bool
+	}{
+		{
+			name: "in the beginning",
+			s: commit.NewSubject(
+				commit.NewType("feat"),
+				commit.NewScope("ui"),
+				commit.NewDescription("TASK-1234 add new feature"),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("TASK-1234"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "in the beginning with scopes",
+			s: commit.NewSubject(
+				commit.NewType("feat"),
+				commit.NewScope("ui"),
+				commit.NewDescription("[TASK-1234] add new feature"),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("TASK-1234"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "issue in the end",
+			s: commit.NewSubject(
+				commit.NewType("fix"),
+				commit.NewScope("core"),
+				commit.NewDescription("Fix #42"),
+			),
+			args: args{
+				re: regexp.MustCompile("(#[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("#42"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "issue in the middle",
+			s: commit.NewSubject(
+				commit.NewType("fix"),
+				commit.NewScope("core"),
+				commit.NewDescription("Fix issue #42 in the code"),
+			),
+			args: args{
+				re: regexp.MustCompile("(#[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("#42"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "no ticket",
+			s: commit.NewSubject(
+				commit.NewType("fix"),
+				commit.NewScope("core"),
+				commit.NewDescription("Fix issue in the code"),
+			),
+			args: args{
+				re: regexp.MustCompile("(#[0-9]+)"),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "empty subject",
+			s: commit.NewSubject(
+				commit.NewType(""),
+				commit.NewScope(""),
+				commit.NewDescription(""),
+			),
+			args: args{
+				re: regexp.MustCompile("(#[0-9]+)"),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "nil regex",
+			s: commit.NewSubject(
+				commit.NewType("fix"),
+				commit.NewScope("core"),
+				commit.NewDescription("Fix issue #42 in the code"),
+			),
+			args: args{
+				re: nil,
+			},
+			want:      ticket.Ticket{},
+			wantPanic: true,
+		},
+		{
+			name: "default args",
+			s: commit.NewSubject(
+				commit.NewType(""),
+				commit.NewScope(""),
+				commit.NewDescription(""),
+			),
+			args:      args{},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.wantPanic {
+				assert.Panics(t, func() {
+					_ = tt.s.Ticket(tt.args.re)
+				})
+				return
+			}
+			assert.Equal(
+				t,
+				tt.want,
+				tt.s.Ticket(tt.args.re),
+			)
 		})
 	}
 }
