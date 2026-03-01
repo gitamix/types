@@ -90,6 +90,9 @@ func (m Message) Body() Body {
 // The regular expression should contain a capturing group that matches the ticket name.
 // If the subject is empty or does not match the regular expression, an empty Ticket is returned.
 //
+// If there is no ticket found in the subject, it will not attempt to search the body for a ticket.
+// Only the subject is considered for ticket extraction.
+//
 // Example usage:
 //
 //	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
