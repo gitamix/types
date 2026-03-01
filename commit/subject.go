@@ -108,9 +108,9 @@ func (s Subject) String() string {
 //
 // Example usage:
 //
-//	re := regexp.MustCompile(`JIRA-(\d+)`)
-//	t := ParseSubject("Fix issue JIRA-1234", re).Ticket(re)
-//	fmt.Println(t.Name()) // Output: JIRA-1234
+//	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
+//	t := ParseSubject("TASK-1234 add new feature", re).Ticket(re)
+//	fmt.Println(t.Name()) // Output: TASK-1234
 func (s Subject) Ticket(re *regexp.Regexp) ticket.Ticket {
 	return ticket.ParseTicket(s.String(), re)
 }
