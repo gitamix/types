@@ -109,7 +109,7 @@ func (s Subject) String() string {
 // Example usage:
 //
 //	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
-//	t := ParseSubject("TASK-1234 add new feature", re).Ticket(re)
+//	t := ParseSubject("TASK-1234 add new feature").Ticket(re)
 //	fmt.Println(t.Name()) // Output: TASK-1234
 func (s Subject) Ticket(re *regexp.Regexp) ticket.Ticket {
 	return ticket.ParseTicket(s.String(), re)

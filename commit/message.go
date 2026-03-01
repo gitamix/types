@@ -96,7 +96,7 @@ func (m Message) Body() Body {
 // Example usage:
 //
 //	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
-//	t := ParseMessage("TASK-1234 add new feature", re).Ticket(re)
+//	t := ParseMessage("TASK-1234 add new feature").Ticket(re)
 //	fmt.Println(t.Name()) // Output: TASK-1234
 func (m Message) Ticket(re *regexp.Regexp) ticket.Ticket {
 	return m.subject.Ticket(re)
