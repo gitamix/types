@@ -1,11 +1,13 @@
 package branch_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gitamix/types/branch"
+	"github.com/gitamix/types/ticket"
 )
 
 func TestName_Empty(t *testing.T) {
@@ -125,6 +127,82 @@ func TestName_String(t *testing.T) {
 			t.Parallel()
 			got := tt.n.String()
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestName_Ticket(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		re *regexp.Regexp
+	}
+	tests := []struct {
+		name      string
+		n         branch.Name
+		args      args
+		want      ticket.Ticket
+		wantPanic bool
+	}{
+		{
+			name: "branch name with task id",
+			n:    branch.NewName("feature/TASK-1234"),
+			args: args{
+				re: regexp.MustCompile(`^(?:feature|bugfix|hotfix)/([A-Z]+-\d+)`),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("TASK-1234"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "branch name without ticket",
+			n:    branch.NewName("feature/add-new-endpoint"),
+			args: args{
+				re: regexp.MustCompile(`^(?:feature|bugfix|hotfix)/([A-Z]+-\d+)`),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "empty branch name",
+			n:    branch.NewName(""),
+			args: args{
+				re: regexp.MustCompile(`^(?:feature|bugfix|hotfix)/([A-Z]+-\d+)`),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "nil regex",
+			n:    branch.NewName("feature/TASK-1234"),
+			args: args{
+				re: nil,
+			},
+			want:      ticket.Ticket{},
+			wantPanic: true,
+		},
+		{
+			name:      "default args",
+			n:         branch.NewName(""),
+			args:      args{},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.wantPanic {
+				assert.Panics(t, func() {
+					_ = tt.n.Ticket(tt.args.re)
+				})
+				return
+			}
+			assert.Equal(
+				t,
+				tt.want,
+				tt.n.Ticket(tt.args.re),
+			)
 		})
 	}
 }
