@@ -2,7 +2,10 @@ package commit
 
 import (
 	"bytes"
+	"regexp"
 	"strings"
+
+	"github.com/gitamix/types/ticket"
 )
 
 // Subject represents the subject of a commit message.
@@ -96,4 +99,18 @@ func (s Subject) String() string {
 		return s.description.String()
 	}
 	return s.typ.String() + "(" + s.scope.String() + "): " + s.description.String()
+}
+
+// Ticket extracts a Ticket from the Subject using the provided regular expression.
+//
+// The regular expression should contain a capturing group that matches the ticket name.
+// If the subject is empty or does not match the regular expression, an empty Ticket is returned.
+//
+// Example usage:
+//
+//	re := regexp.MustCompile(`^((?:TASK|PROJ|BUG)-\d+)`)
+//	t := ParseSubject("TASK-1234 add new feature").Ticket(re)
+//	fmt.Println(t.Name()) // Output: TASK-1234
+func (s Subject) Ticket(re *regexp.Regexp) ticket.Ticket {
+	return ticket.ParseTicket(s.String(), re)
 }
