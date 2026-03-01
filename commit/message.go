@@ -1,6 +1,11 @@
 package commit
 
-import "bytes"
+import (
+	"bytes"
+	"regexp"
+
+	"github.com/gitamix/types/ticket"
+)
 
 // Message represents a git commit message.
 type Message struct {
@@ -78,4 +83,18 @@ func (m Message) Subject() Subject {
 // Body returns the body of the commit message.
 func (m Message) Body() Body {
 	return m.body
+}
+
+// Ticket extracts a Ticket from the Message's subject using the provided regular expression.
+//
+// The regular expression should contain a capturing group that matches the ticket name.
+// If the subject is empty or does not match the regular expression, an empty Ticket is returned.
+//
+// Example usage:
+//
+//	re := regexp.MustCompile(`JIRA-(\d+)`)
+//	t := ParseMessage("Fix issue JIRA-1234", re).Ticket(re)
+//	fmt.Println(t.Name()) // Output: JIRA-1234
+func (m Message) Ticket(re *regexp.Regexp) ticket.Ticket {
+	return m.subject.Ticket(re)
 }

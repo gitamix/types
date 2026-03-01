@@ -1,11 +1,13 @@
 package commit_test
 
 import (
+	"regexp"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 
 	"github.com/gitamix/types/commit"
+	"github.com/gitamix/types/ticket"
 )
 
 func TestMessage_String(t *testing.T) {
@@ -601,6 +603,133 @@ func TestParseMessage(t *testing.T) {
 			t.Parallel()
 			got := commit.ParseMessage(string(tt.args.bb))
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestMessage_Ticket(t *testing.T) {
+	t.Parallel()
+	type args struct {
+		re *regexp.Regexp
+	}
+	tests := []struct {
+		name      string
+		m         commit.Message
+		args      args
+		want      ticket.Ticket
+		wantPanic bool
+	}{
+		{
+			name: "ticket in subject",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("fix"),
+					commit.NewScope("backend"),
+					commit.NewDescription("TASK-1234: resolve issue with API"),
+				),
+				commit.NewBody([]byte("Closes BUG-4331")),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("TASK-1234"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "no ticket in subject but in body",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("fix"),
+					commit.NewScope("backend"),
+					commit.NewDescription("resolve issue with API"),
+				),
+				commit.NewBody([]byte("Closes BUG-4331")),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "no ticket in subject and body",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("fix"),
+					commit.NewScope("backend"),
+					commit.NewDescription("resolve issue with API"),
+				),
+				commit.NewBody([]byte("No tickets mentioned.")),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "empty subject and body",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				),
+				commit.NewBody([]byte("")),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+		{
+			name: "nil regex",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("fix"),
+					commit.NewScope("backend"),
+					commit.NewDescription("resolve issue with API"),
+				),
+				commit.NewBody([]byte("Closes BUG-4331")),
+			),
+			args: args{
+				re: nil,
+			},
+			want:      ticket.Ticket{},
+			wantPanic: true,
+		},
+		{
+			name: "default args",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				),
+				commit.NewBody([]byte("")),
+			),
+			args:      args{},
+			want:      ticket.Ticket{},
+			wantPanic: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			if tt.wantPanic {
+				assert.Panics(t, func() {
+					_ = tt.m.Ticket(tt.args.re)
+				})
+				return
+			}
+			assert.Equal(
+				t,
+				tt.want,
+				tt.m.Ticket(tt.args.re),
+			)
 		})
 	}
 }
