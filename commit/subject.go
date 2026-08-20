@@ -111,6 +111,11 @@ func (s Subject) Scope() Scope {
 	return s.scope
 }
 
+// Description returns the description of the subject.
+func (s Subject) Description() Description {
+	return s.description
+}
+
 // Ticket extracts a Ticket from the Subject using the provided regular expression.
 //
 // The regular expression should contain a capturing group that matches the ticket name.
