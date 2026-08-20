@@ -395,6 +395,243 @@ func TestSubject_String(t *testing.T) {
 	}
 }
 
+func TestSubject_Type(t *testing.T) {
+	t.Parallel()
+
+	t.Run("full subject", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewType("feat")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					want,
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				).
+				Type(),
+		)
+	})
+
+	t.Run("type and description only", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewType("fix")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					want,
+					commit.NewScope(""),
+					commit.NewDescription("resolve issue"),
+				).
+				Type(),
+		)
+	})
+
+	t.Run("empty type", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewType("")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					want,
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				).
+				Type(),
+		)
+	})
+
+	t.Run("empty subject", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewType("")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					want,
+					commit.NewScope(""),
+					commit.NewDescription(""),
+				).
+				Type(),
+		)
+	})
+
+	t.Run("type with spaces", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewType("  feat  ")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					want,
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				).
+				Type(),
+		)
+	})
+}
+
+func TestSubject_Scope(t *testing.T) {
+	t.Parallel()
+
+	t.Run("full subject", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewScope("ui")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType("feat"),
+					want,
+					commit.NewDescription("add new button"),
+				).
+				Scope(),
+		)
+	})
+
+	t.Run("scope only", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewScope("core")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType(""),
+					want,
+					commit.NewDescription(""),
+				).
+				Scope(),
+		)
+	})
+
+	t.Run("empty scope", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewScope("")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType("feat"),
+					want,
+					commit.NewDescription("add new button"),
+				).
+				Scope(),
+		)
+	})
+
+	t.Run("empty subject", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewScope("")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType(""),
+					want,
+					commit.NewDescription(""),
+				).
+				Scope(),
+		)
+	})
+
+	t.Run("scope with spaces", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewScope("  ui  ")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType("feat"),
+					want,
+					commit.NewDescription("add new button"),
+				).
+				Scope(),
+		)
+	})
+}
+
+func TestSubject_Description(t *testing.T) {
+	t.Parallel()
+
+	t.Run("full subject", func(t *testing.T) {
+		t.Parallel()
+		s := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription("add new button"),
+		)
+		want := commit.NewDescription("add new button")
+		assert.Equal(t, want, s.Description())
+	})
+
+	t.Run("description only", func(t *testing.T) {
+		t.Parallel()
+		s := commit.NewSubject(
+			commit.NewType(""),
+			commit.NewScope(""),
+			commit.NewDescription("add new button"),
+		)
+		want := commit.NewDescription("add new button")
+		assert.Equal(t, want, s.Description())
+	})
+
+	t.Run("empty description", func(t *testing.T) {
+		t.Parallel()
+		s := commit.NewSubject(
+			commit.NewType("feat"),
+			commit.NewScope("ui"),
+			commit.NewDescription(""),
+		)
+		want := commit.NewDescription("")
+		assert.Equal(t, want, s.Description())
+	})
+
+	t.Run("empty subject", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewDescription("")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType(""),
+					commit.NewScope(""),
+					want,
+				).
+				Description(),
+		)
+	})
+
+	t.Run("description with spaces", func(t *testing.T) {
+		t.Parallel()
+		want := commit.NewDescription("  add new button  ")
+		assert.Equal(
+			t,
+			want,
+			commit.
+				NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					want,
+				).
+				Description(),
+		)
+	})
+}
+
 func TestSubject_Ticket(t *testing.T) {
 	t.Parallel()
 	type args struct {
