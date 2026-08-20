@@ -106,6 +106,11 @@ func (s Subject) Type() Type {
 	return s.typ
 }
 
+// Scope returns the scope of the subject.
+func (s Subject) Scope() Scope {
+	return s.scope
+}
+
 // Ticket extracts a Ticket from the Subject using the provided regular expression.
 //
 // The regular expression should contain a capturing group that matches the ticket name.
