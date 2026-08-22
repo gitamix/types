@@ -15,6 +15,7 @@ func TestMessage_String(t *testing.T) {
 	type fields struct {
 		subject commit.Subject
 		body    commit.Body
+		raw     []byte
 	}
 	tests := []struct {
 		name   string
@@ -30,6 +31,9 @@ func TestMessage_String(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				body: commit.NewBody([]byte("This commit adds a new button to the UI.")),
+				raw: []byte(
+					"feat(ui): add new button\n\nThis commit adds a new button to the UI.",
+				),
 			},
 			want: "feat(ui): add new button\n\nThis commit adds a new button to the UI.",
 		},
@@ -159,6 +163,7 @@ func TestMessage_String(t *testing.T) {
 			m := commit.NewMessage(
 				tt.fields.subject,
 				tt.fields.body,
+				commit.WithRaw(tt.fields.raw),
 			)
 			got := m.String()
 			assert.Equal(t, tt.want, got)
@@ -397,6 +402,10 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody([]byte("This commit adds a new button to the UI.")),
+				commit.WithRaw([]byte(
+					"feat(ui): add new button\n\n"+
+						"This commit adds a new button to the UI.",
+				)),
 			),
 		},
 		{
@@ -415,6 +424,58 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody([]byte("This commit adds a new button to the UI.\n\nThank you!")),
+				commit.WithRaw([]byte(
+					"feat(ui): add new button\n\n"+
+						"This commit adds a new button to the UI.\n\n"+
+						"Thank you!",
+				)),
+			),
+		},
+		{
+			name: "subject and body separated by single newline",
+			args: args{
+				bb: []byte(
+					"feat(ui): add new button\n" +
+						"This commit adds a new button to the UI.",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte("This commit adds a new button to the UI.")),
+				commit.WithRaw([]byte(
+					"feat(ui): add new button\n"+
+						"This commit adds a new button to the UI.",
+				)),
+			),
+		},
+		{
+			name: "subject and multi-line body separated by single newline",
+			args: args{
+				bb: []byte(
+					"feat(ui): add new button\n" +
+						"This commit adds a new button to the UI.\n" +
+						"Fixes #123",
+				),
+			},
+			want: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("feat"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add new button"),
+				),
+				commit.NewBody([]byte(
+					"This commit adds a new button to the UI.\n"+
+						"Fixes #123",
+				)),
+				commit.WithRaw([]byte(
+					"feat(ui): add new button\n"+
+						"This commit adds a new button to the UI.\n"+
+						"Fixes #123",
+				)),
 			),
 		},
 		{
@@ -429,6 +490,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button. This commit adds a new button to the UI."),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("feat(ui): add new button. This commit adds a new button to the UI."),
+				),
 			),
 		},
 		{
@@ -443,6 +507,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("   feat  (ui) :    add new button  "),
+				),
 			),
 		},
 		{
@@ -457,6 +524,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("feat: add new button"),
+				),
 			),
 		},
 		{
@@ -471,6 +541,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("(ui): add new button"),
+				),
 			),
 		},
 		{
@@ -485,6 +558,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("add new button"),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("add new button"),
+				),
 			),
 		},
 		{
@@ -508,6 +584,14 @@ func TestParseMessage(t *testing.T) {
 						"Fixes #123\n\n"+
 						"Please review.",
 				)),
+				commit.WithRaw(
+					[]byte(
+						"add new button"+"\n\n"+
+							"This commit adds a new button to the UI.\n"+
+							"Fixes #123\n\n"+
+							"Please review.",
+					),
+				),
 			),
 		},
 		{
@@ -522,6 +606,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription(""),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("feat: "),
+				),
 			),
 		},
 		{
@@ -536,6 +623,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription(""),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("(ui): "),
+				),
 			),
 		},
 		{
@@ -550,6 +640,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription(""),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("feat(ui): "),
+				),
 			),
 		},
 		{
@@ -564,6 +657,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription("ui: add new button"),
 				),
 				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("feat: ui: add new button"),
+				),
 			),
 		},
 		{
@@ -578,18 +674,9 @@ func TestParseMessage(t *testing.T) {
 					commit.NewDescription(""),
 				),
 				commit.NewBody(nil),
-			),
-		},
-		{
-			name: "default args",
-			args: args{},
-			want: commit.NewMessage(
-				commit.NewSubject(
-					commit.NewType(""),
-					commit.NewScope(""),
-					commit.NewDescription(""),
+				commit.WithRaw(
+					[]byte(""),
 				),
-				commit.NewBody(nil),
 			),
 		},
 	}
@@ -620,14 +707,40 @@ func TestMessage_Ticket(t *testing.T) {
 		wantPanic bool
 	}{
 		{
-			name: "ticket in subject",
+			name: "ticket from raw msg",
 			m: commit.NewMessage(
 				commit.NewSubject(
 					commit.NewType("fix"),
 					commit.NewScope("backend"),
-					commit.NewDescription("TASK-1234: resolve issue with API"),
+					commit.NewDescription("resolve issue with API"),
 				),
 				commit.NewBody([]byte("Closes BUG-4331")),
+				commit.WithRaw(
+					[]byte(
+						"TASK-1234 fix(backend): resolve issue with API\n\nCloses BUG-4331",
+					),
+				),
+			),
+			args: args{
+				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
+			},
+			want: ticket.NewTicket(
+				ticket.NewName("TASK-1234"),
+			),
+			wantPanic: false,
+		},
+		{
+			name: "ticket from single-line raw msg with no newline",
+			m: commit.NewMessage(
+				commit.NewSubject(
+					commit.NewType("fix"),
+					commit.NewScope("ui"),
+					commit.NewDescription("add button"),
+				),
+				commit.NewBody(nil),
+				commit.WithRaw(
+					[]byte("TASK-1234 fix(ui): add button"),
+				),
 			),
 			args: args{
 				re: regexp.MustCompile("((TASK|PROJ|BUG)-[0-9]+)"),
@@ -694,6 +807,11 @@ func TestMessage_Ticket(t *testing.T) {
 					commit.NewDescription("resolve issue with API"),
 				),
 				commit.NewBody([]byte("Closes BUG-4331")),
+				commit.WithRaw(
+					[]byte(
+						"TASK-1234 fix(backend): resolve issue with API\n\nCloses BUG-4331",
+					),
+				),
 			),
 			args: args{
 				re: nil,
