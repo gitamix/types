@@ -63,6 +63,11 @@ func TestType_String(t *testing.T) {
 			want: "   ",
 		},
 		{
+			name: "type with leading and trailing spaces",
+			tr:   commit.NewType("  feat  "),
+			want: "  feat  ",
+		},
+		{
 			name: "feat",
 			tr:   commit.NewType("feat"),
 			want: "feat",
@@ -126,6 +131,34 @@ func TestParseType(t *testing.T) {
 				s: "",
 			},
 			want: commit.NewType(""),
+		},
+		{
+			name: "subject with ticket prefix and scope",
+			args: args{
+				s: "WS-1234 feat(ui): some feature",
+			},
+			want: commit.NewType("feat"),
+		},
+		{
+			name: "subject with ticket in brackets prefix and scope",
+			args: args{
+				s: "[WS-1234] feat(ui): some feature",
+			},
+			want: commit.NewType("feat"),
+		},
+		{
+			name: "subject with ticket prefix and colon",
+			args: args{
+				s: "WS-1234 fix: resolve issue",
+			},
+			want: commit.NewType("fix"),
+		},
+		{
+			name: "subject with colon before scope-like parens",
+			args: args{
+				s: "feat: add (extra) detail",
+			},
+			want: commit.NewType("feat"),
 		},
 	}
 	for _, tt := range tests {

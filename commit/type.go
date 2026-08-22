@@ -16,7 +16,7 @@ func NewType(value string) Type {
 
 // Empty checks if the type is empty.
 func (t Type) Empty() bool {
-	return strings.TrimSpace(string(t)) == ""
+	return strings.TrimSpace(t.String()) == ""
 }
 
 // String returns the string representation of the Type.
@@ -28,22 +28,25 @@ func (t Type) String() string {
 //
 // The expected format has the type at the beginning of the subject,
 // optionally followed by a scope in parentheses and a colon.
+// A leading ticket prefix (such as "WS-1234") is stripped automatically.
 //
 // For example:
 //
-//	"feat(ui): add new button" -> type is "feat"
-//	"fix: resolve issue"       -> type is "fix"
+//	"feat(ui): add new button"        -> type is "feat"
+//	"[WS-1234] feat(ui): some feature"  -> type is "feat"
+//	"fix: resolve issue"              -> type is "fix"
+//	"feat"                           -> type is ""
 func ParseType(s string) Type {
 	if len(s) == 0 {
-		return NewType("")
+		return ""
 	}
-	ss := strings.SplitN(s, "(", 2)
-	if len(ss) == 2 {
-		return NewType(strings.TrimSpace(ss[0]))
+	i := strings.IndexAny(s, "(:")
+	if i < 0 {
+		return ""
 	}
-	ss = strings.SplitN(s, ":", 2)
-	if len(ss) == 2 {
-		return NewType(strings.TrimSpace(ss[0]))
+	v := strings.TrimSpace(s[:i])
+	if fields := strings.Fields(v); len(fields) > 1 {
+		v = fields[len(fields)-1]
 	}
-	return NewType("")
+	return NewType(strings.TrimSpace(v))
 }
