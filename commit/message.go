@@ -86,11 +86,10 @@ func ParseMessage[T []byte | string](v T) Message {
 		subjbb = bb[:subji]
 		bodyi = subji + 1
 	}
+	if bodyi > 0 && bodyi < len(bb) && bb[bodyi] == '\n' {
+		bodyi++
+	}
 	if bodyi > 0 {
-		lni := bytes.IndexByte(bb[bodyi:], '\n')
-		if lni != -1 {
-			bodyi += lni + 1
-		}
 		bodybb = bb[bodyi:]
 	}
 	m := NewMessage(
@@ -144,10 +143,14 @@ func (m Message) Body() Body {
 // though the parsed Subject no longer contains it.
 //
 // Ticket returns an empty Ticket when the Message has no raw bytes or when
-// the raw bytes contain no newline character. In particular, a Message
-// built with NewMessage without the WithRaw option always yields an empty
-// Ticket. Use ParseMessage, which records the raw bytes, to ensure
-// extraction works as expected.
+// no ticket is found in the subject. In particular, a Message built with
+// NewMessage without the WithRaw option always yields an empty Ticket.
+// Use ParseMessage, which records the raw bytes, to ensure extraction works
+// as expected.
+//
+// When the raw bytes contain no newline, the entire raw buffer is treated as
+// the subject, mirroring ParseMessage's handling of single-line messages, so
+// a message such as "TASK-1234 fix(ui): add button" still yields "TASK-1234".
 //
 // Panics if re is nil.
 //
@@ -158,9 +161,11 @@ func (m Message) Body() Body {
 //	fmt.Println(t.Name()) // Output: TASK-1234
 func (m Message) Ticket(re *regexp.Regexp) ticket.Ticket {
 	subji := bytes.IndexByte(m.raw, '\n')
+	var subjbb []byte
 	if subji == -1 {
-		return ticket.Ticket{}
+		subjbb = m.raw
+	} else {
+		subjbb = m.raw[:subji]
 	}
-	subjbb := m.raw[:subji]
 	return ticket.ParseTicket(string(subjbb), re)
 }
