@@ -398,3 +398,78 @@ func TestCommit_Scope(t *testing.T) {
 		})
 	}
 }
+
+func TestCommit_Merged(t *testing.T) {
+	t.Parallel()
+
+	t.Run("merge commit", func(t *testing.T) {
+		t.Parallel()
+		assert.True(
+			t,
+			commit.
+				NewCommit(
+					commit.NewHash("abcdef1234567890"),
+					commit.NewMessage(
+						commit.NewSubject(
+							commit.NewType("merge"),
+							commit.NewScope("feature"),
+							commit.NewDescription("integrate new functionality"),
+						),
+						commit.NewBody([]byte("Merged the feature branch into main.")),
+					),
+					commit.WithMerged(),
+				).
+				Merged(),
+		)
+	})
+
+	t.Run("regular commit", func(t *testing.T) {
+		t.Parallel()
+		assert.False(
+			t,
+			commit.
+				NewCommit(
+					commit.NewHash("abcdef1234567890"),
+					commit.NewMessage(
+						commit.NewSubject(
+							commit.NewType("feat"),
+							commit.NewScope("ui"),
+							commit.NewDescription("add new button"),
+						),
+						commit.NewBody([]byte("Added new button and covered with tests")),
+					),
+				).
+				Merged(),
+		)
+	})
+
+	t.Run("empty hash and msg merge commit", func(t *testing.T) {
+		t.Parallel()
+		assert.True(
+			t,
+			commit.
+				NewCommit(
+					commit.NewHash(""),
+					commit.NewMessage(
+						commit.NewSubject(
+							commit.NewType(""),
+							commit.NewScope(""),
+							commit.NewDescription(""),
+						),
+						commit.NewBody([]byte{}),
+					),
+					commit.WithMerged(),
+				).
+				Merged(),
+		)
+	})
+
+	t.Run("default value", func(t *testing.T) {
+		t.Parallel()
+		var c commit.Commit
+		assert.False(
+			t,
+			c.Merged(),
+		)
+	})
+}
