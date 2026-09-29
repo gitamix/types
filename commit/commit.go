@@ -6,20 +6,28 @@ type Commit struct {
 	msg Message
 	// hash is the commit hash defined after the commit is created.
 	hash Hash
+
+	kind Kind
 }
 
 // NewCommit creates a new Commit instance.
 //
 //   - hash: the commit hash.
 //   - msg: the commit message.
+//   - opts: functional options to configure the instance.
 func NewCommit(
 	hash Hash,
 	msg Message,
+	opts ...Option,
 ) Commit {
-	return Commit{
+	c := Commit{
 		hash: hash,
 		msg:  msg,
 	}
+	for _, opt := range opts {
+		opt(&c)
+	}
+	return c
 }
 
 // String returns the short string representation of the commit hash.
@@ -61,4 +69,12 @@ func (c Commit) Type() Type {
 //	"fix: resolve issue"       -> ""
 func (c Commit) Scope() Scope {
 	return c.msg.subject.scope
+}
+
+// Kind returns the kind of the commit.
+//
+// If no kind is provided in the constructor,
+// it returns the default KindDefault.
+func (c Commit) Kind() Kind {
+	return c.kind
 }
