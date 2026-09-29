@@ -6,28 +6,20 @@ type Commit struct {
 	msg Message
 	// hash is the commit hash defined after the commit is created.
 	hash Hash
-	// merged tells if the commit is a merge commit with more than one parent.
-	merged bool
 }
 
 // NewCommit creates a new Commit instance.
 //
 //   - hash: the commit hash.
 //   - msg: the commit message.
-//   - opts: the functional options to configure the Commit.
 func NewCommit(
 	hash Hash,
 	msg Message,
-	opts ...Option,
 ) Commit {
-	c := Commit{
+	return Commit{
 		hash: hash,
 		msg:  msg,
 	}
-	for _, opt := range opts {
-		opt(&c)
-	}
-	return c
 }
 
 // String returns the short string representation of the commit hash.
@@ -43,12 +35,6 @@ func (c Commit) Message() Message {
 // Hash returns the commit hash.
 func (c Commit) Hash() Hash {
 	return c.hash
-}
-
-// Merged reports whether the commit is a merge commit,
-// i.e. a commit with more than one parent.
-func (c Commit) Merged() bool {
-	return c.merged
 }
 
 // Type returns the type of the commit
