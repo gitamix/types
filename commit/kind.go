@@ -1,0 +1,16 @@
+package commit
+
+// Kind represents the kind of a commit.
+//
+// It is used to split commits by their kind in the linting process.
+type Kind uint8
+
+const (
+	// KindDefault represents default commit.
+	KindDefault Kind = 0
+)
+
+// Default defines whether the Kind is Default.
+func (k Kind) Default() bool {
+	return k == KindDefault
+}

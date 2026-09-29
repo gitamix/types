@@ -398,3 +398,56 @@ func TestCommit_Scope(t *testing.T) {
 		})
 	}
 }
+
+func TestCommit_Kind(t *testing.T) {
+	t.Parallel()
+
+	t.Run("returns the exactly one provided in constructor", func(t *testing.T) {
+		t.Parallel()
+		want := commit.KindDefault
+		got := commit.
+			NewCommit(
+				commit.NewHash("abcdef1234567890"),
+				commit.NewMessage(
+					commit.NewSubject(
+						commit.NewType(""),
+						commit.NewScope(""),
+						commit.NewDescription(""),
+					),
+					commit.NewBody([]byte{}),
+				),
+				commit.WithKind(commit.KindDefault),
+			).
+			Kind()
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("returns default kind if not provided in constructor", func(t *testing.T) {
+		t.Parallel()
+		want := commit.KindDefault
+		got := commit.
+			NewCommit(
+				commit.NewHash("abcdef1234567890"),
+				commit.NewMessage(
+					commit.NewSubject(
+						commit.NewType(""),
+						commit.NewScope(""),
+						commit.NewDescription(""),
+					),
+					commit.NewBody([]byte{}),
+				),
+			).
+			Kind()
+		assert.Equal(t, want, got)
+	})
+
+	t.Run("returns default kind for a default value commit", func(t *testing.T) {
+		t.Parallel()
+		var (
+			c    commit.Commit
+			want = commit.KindDefault
+			got  = c.Kind()
+		)
+		assert.Equal(t, want, got)
+	})
+}
