@@ -10,6 +10,8 @@ const (
 	KindDefault Kind = 0
 	// KindMerge represents merge commit.
 	KindMerge Kind = 1
+	// KindRevert represents revert commit.
+	KindRevert Kind = 2
 )
 
 // Default defines whether the Kind is Default.
@@ -20,4 +22,9 @@ func (k Kind) Default() bool {
 // Merge defines whether the Kind is Merge.
 func (k Kind) Merge() bool {
 	return k == KindMerge
+}
+
+// Revert defines whether the Kind is Revert.
+func (k Kind) Revert() bool {
+	return k == KindRevert
 }
