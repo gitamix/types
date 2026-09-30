@@ -442,6 +442,26 @@ func TestCommit_Kind(t *testing.T) {
 		assert.Equal(t, want, got)
 	})
 
+	t.Run("returns revert kind if provided in constructor", func(t *testing.T) {
+		t.Parallel()
+		want := commit.KindRevert
+		got := commit.
+			NewCommit(
+				commit.NewHash("abcdef1234567890"),
+				commit.NewMessage(
+					commit.NewSubject(
+						commit.NewType(""),
+						commit.NewScope(""),
+						commit.NewDescription(""),
+					),
+					commit.NewBody([]byte{}),
+				),
+				commit.WithKind(commit.KindRevert),
+			).
+			Kind()
+		assert.Equal(t, want, got)
+	})
+
 	t.Run("returns default kind if not provided in constructor", func(t *testing.T) {
 		t.Parallel()
 		want := commit.KindDefault
